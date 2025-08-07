@@ -1,0 +1,6 @@
+services:
+  cli:
+    build: .
+    entrypoint: /app/analysis-question-AI
+    env_file:
+      - .env
