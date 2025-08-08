@@ -13,10 +13,15 @@ func main() {
 	// инициализация переменных окружения
 	var env = core.NewEnvironment()
 
-	// инициализация api
+	// инициализация api gemini
 	var API_GEMINI_URL = env.Get("API_GEMINI_URL")
 	var API_GEMINI_KEY = env.Get("API_GEMINI_KEY")
-	var api = external.NewGeminiAPI(API_GEMINI_URL, API_GEMINI_KEY)
+	var apiGemini = external.NewGeminiAPI(API_GEMINI_URL, API_GEMINI_KEY)
+
+
+	// инициализация api google docs
+	var API_GOOGLE_DOCS_URL = env.Get("API_GOOGLE_DOCS_URL")
+	var apiGoogleDocs = external.NewGoogleDocsAPI(API_GOOGLE_DOCS_URL)
 
 	// инициализация флагов из командного ряда
 	var flags = cli.NewFlags()
@@ -24,10 +29,12 @@ func main() {
 	// Инициализация репозитория
 	var repo = repository.NewQuestionRepository()
 
-	// Инициализация сервиса
-	var svc = service.NewQuestionService(api, repo)
+	// Инициализация сервисов
+	var geminiSvc = service.NewQuestionService(apiGemini, repo)
+	var googleDocsSvc = service.NewGoogleDocsService(apiGoogleDocs, repo)
+	googleDocsSvc.GetQuestions()
 
 	// Инициализация cli команд
-	var commands = cli.NewCommands(flags, svc, repo, env)
+	var commands = cli.NewCommands(flags, geminiSvc, repo, env)
 	commands.Run()
 }
