@@ -34,7 +34,8 @@ func Test() {
 
     // ID документа (в ссылке Google Sheets)
     spreadsheetId := "1R7xfAJ6RyytICa5VFYF7nhVwilWlfW2VvAvRUruJIus"
-    readRange := "Лист1!A1:C10" // диапазон
+    readRange := "'Sheet1'!A1:C10"
+
 
     resp, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
     if err != nil {

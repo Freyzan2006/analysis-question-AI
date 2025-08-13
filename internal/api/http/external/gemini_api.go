@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -17,128 +16,83 @@ import (
 type GeminiAPI struct {
 	URL string
 	KEY string
+	PromptTemplate string
 }
 
-func NewGeminiAPI(url string, key string) *GeminiAPI {
+func NewGeminiAPI(url string, key string, prompt string) *GeminiAPI {
 	return &GeminiAPI{
 		URL: url,
 		KEY: key,
+		PromptTemplate: prompt,
 	}
 }
 
-func(a *GeminiAPI) GenerateText(text string) (*model.Question, error) {
-	var API = a.URL + a.KEY 
 
-	input := ContentDTO{
-		Contents: []PartDTO{
-			{
-				Parts: []MessageDTO{
-					{Text: text},
-				},
-			},
-		},
-	}
-
-	body, err := json.Marshal(input)
-	if err != nil {
-		log.Fatal(err)
-	}
+func (a *GeminiAPI) GenerateText(q model.QuestionTable) (*model.QuestionTable, error) {
+    var API = a.URL + a.KEY
 
 
-	req, err := http.NewRequest("POST", API, bytes.NewReader(body))
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("Content-Type", "application/json")
+	prompt := fmt.Sprintf(a.PromptTemplate, q.Question, formatOptions(q.Options))
+    
 
+    input := ContentDTO{
+        Contents: []PartDTO{
+            {
+                Parts: []MessageDTO{
+                    {Text: prompt},
+                },
+            },
+        },
+    }
 
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
+    body, err := json.Marshal(input)
+    if err != nil {
+        return nil, err
+    }
 
-	respBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+    req, err := http.NewRequest("POST", API, bytes.NewReader(body))
+    if err != nil {
+        return nil, err
+    }
+    req.Header.Set("Content-Type", "application/json")
 
-	fmt.Println("Status code:", res.StatusCode)
-	fmt.Println("Raw response:", string(respBody))
+    client := &http.Client{}
+    res, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer res.Body.Close()
 
+    respBody, err := io.ReadAll(res.Body)
+    if err != nil {
+        return nil, err
+    }
 
-	var geminiResp ResponseDTO
-	if err := json.Unmarshal(respBody, &geminiResp); err != nil {
-		log.Fatal(err)
-	}
+    var geminiResp ResponseDTO
+    if err := json.Unmarshal(respBody, &geminiResp); err != nil {
+        return nil, err
+    }
 
-	// Выводим ответ
-	var result string
-	for _, candidate := range geminiResp.Candidates {
-		for _, part := range candidate.Content.Parts {
-			fmt.Println(part.Text)
-			result += part.Text
-		}
-	}
+    var result string
+    for _, candidate := range geminiResp.Candidates {
+        for _, part := range candidate.Content.Parts {
+            result += part.Text + "\n"
+        }
+    }
 
-	return &model.Question{
-		Question: text,
-		Answer: result,
-	}, nil
+    // Можно положить результат в Explanation или отдельное поле
+    q.Options = append(q.Options, model.AnswerOption{
+        Text:        "Анализ от Gemini",
+        Explanation: result,
+    })
+
+    return &q, nil
 }
 
-
-// func main() {
-	
-
-
-	// // Запрос
-	// input := ContentDTO{
-	// 	Parts: []PartDTO{
-	// 		{
-	// 			Parts: []MessageDTO{
-	// 				{Text: "Придумай 3 интересных факта о языке Go"},
-	// 			},
-	// 		},
-	// 	},
-	// }
-
-	// body, err := json.Marshal(input)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// req, err := http.NewRequest("POST", geminiURL+apiKey, bytes.NewReader(body))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// req.Header.Set("Content-Type", "application/json")
-
-
-	// client := &http.Client{}
-	// res, err := client.Do(req)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer res.Body.Close()
-
-
-
-	// respBody, err := io.ReadAll(res.Body)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// var geminiResp Response
-	// if err := json.Unmarshal(respBody, &geminiResp); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // Выводим ответ
-	// for _, candidate := range geminiResp.Candidates {
-	// 	for _, part := range candidate.Content.Parts {
-	// 		fmt.Println(part.Text)
-	// 	}
-	// }
-// }
+func formatOptions(options []model.AnswerOption) string {
+    var result string
+    for i, opt := range options {
+        result += fmt.Sprintf("%d. %s (правильный: %v, пояснение: %s)\n", i+1, opt.Text, opt.IsCorrect, opt.Explanation)
+    }
+    return result
+}

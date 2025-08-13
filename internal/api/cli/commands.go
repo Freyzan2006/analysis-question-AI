@@ -1,15 +1,15 @@
 package cli
 
 import (
-	"fmt"
 	"log"
+	"fmt"
 )
 
 import (
 	"analysis-question-AI/internal/service"
 	"analysis-question-AI/internal/repository"
 	"analysis-question-AI/internal/core"
-	"analysis-question-AI/internal/model"
+	// "analysis-question-AI/internal/model"
 )
 
 type Commands interface {
@@ -33,23 +33,39 @@ func NewCommands(flags Flags, svc *service.QuestionService, repo *repository.Que
 }
 
 func (c *commands) Run() {
-	var flagConfig = c.flags.GetFlags()
 	
-	question := model.Question{
-		Question: "Придумай 3 интересных факта о языке Go", 
-		Answer: "",
-	}
-	answer, err := c.svc.Send(question)
+	
+	// question := model.Question{
+	// 	Question: "Придумай 3 интересных факта о языке Go", 
+	// 	Answer: "",
+	// }
+	answer, err := c.svc.Send()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	
-	
-
-
 	fmt.Println(answer)
 
-	fmt.Println(flagConfig.FILE_OUTPUT)
-	fmt.Println(flagConfig.FILE_INPUT)
+    
+	// for i := 0; i < len(answer); i++ {
+	// 	fmt.Println("Вопрос: ", answer[i].Question)
+	// 	fmt.Println(" ")
+
+	// 	for j := 0; j < len(answer[i].Options); j++ {
+	// 		fmt.Println("\t", j+1, " вариант: ", answer[i].Options[j].Text)
+	// 		fmt.Println(" ")
+	// 		fmt.Println("\tВерно ли ?: ", answer[i].Options[j].IsCorrect)
+	// 		fmt.Println(" ")
+	// 		fmt.Println("\tПояснение: ", answer[i].Options[j].Explanation)
+	// 		fmt.Println(" ")
+	// 	}
+		
+
+	// 	fmt.Println("-------------------")
+	// }
+	
+
+
+	
+
 }

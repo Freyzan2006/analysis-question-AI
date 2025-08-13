@@ -2,6 +2,7 @@ package service
 
 import (
 	"log"
+	"fmt"
 )
 
 import (
@@ -14,25 +15,39 @@ import (
 type QuestionService struct {
 	api  external.GeminiAPI
 	repo repository.QuestionRepository
+	svc  GoogleDocsService
 }
 
-func NewQuestionService(api *external.GeminiAPI, repo *repository.QuestionRepository) *QuestionService {
+func NewQuestionService(api *external.GeminiAPI, repo *repository.QuestionRepository, svc *GoogleDocsService) *QuestionService {
 	return &QuestionService{
 		repo: *repo,
 		api:  *api,
+		svc:  *svc,
 	}
 }
 
-func (s *QuestionService) Send(question model.Question) (*model.Question, error) {
-	answer, err := s.api.GenerateText(question.Question)
-	if err != nil {
-		log.Fatal(err)
+func (s *QuestionService) Send() ([]model.QuestionTable, error) {
+    questions, err := s.svc.GetQuestions()
+    if err != nil {
+        return nil, fmt.Errorf("ошибка получения вопросов: %w", err)
+    }
+
+	
+
+    var results []model.QuestionTable
+    for _, q := range questions {
+		analyzed, err := s.api.GenerateText(q)
+		if err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, *analyzed)
 	}
 
-	saved, err := s.repo.Save(*answer, "./answers.json")
-	if err != nil {
-		log.Fatal(saved)
-	}
 
-	return answer, nil
+   
+    if err := s.repo.Save(results, "./answers.md"); err != nil {
+        return nil, fmt.Errorf("ошибка сохранения: %w", err)
+    }
+
+    return results, nil
 }

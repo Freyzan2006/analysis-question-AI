@@ -1,0 +1,6 @@
+{
+  "spreadsheetId": "1R7xfAJ6RyytICa5VFYF7nhVwilWlfW2VvAvRUruJIus",
+  "readRange": "'Income statement'!A1:F4",
+  "serviceAccountFile": "analysis-question-ai-230c2feec375.json",
+  "promptsPath": "./prompts.md"
+}
