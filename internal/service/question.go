@@ -34,6 +34,8 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
 
 	
 
+	
+
     var results []model.QuestionTable
     for _, q := range questions {
 		analyzed, err := s.api.GenerateText(q)
@@ -48,6 +50,10 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
     if err := s.repo.Save(results, "./answers.md"); err != nil {
         return nil, fmt.Errorf("ошибка сохранения: %w", err)
     }
+
+	if err := s.repo.SaveJSON(results, "./answers.json"); err != nil {
+		return nil, fmt.Errorf("ошибка сохранения: %w", err)
+	}
 
     return results, nil
 }

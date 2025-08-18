@@ -1,6 +1,6 @@
 {
   "spreadsheetId": "1B-OgvMNFt8pApbpwbabVG5rHqp29ztLMOK9yqsagd1Q",
-  "readRange": "'Income statement'!A1:F4",
+  "readRange": "'Expected value'!A161:F164", 
   "serviceAccountFile": "analysis-question-ai-230c2feec375.json",
   "promptsPath": "./prompts.md"
 }

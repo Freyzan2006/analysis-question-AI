@@ -1,28 +1,3 @@
-// package repository
-
-// import (
-// 	"fmt"
-// )
-
-// import (
-// 	"analysis-question-AI/internal/model"
-// )
-
-// type QuestionRepository struct {}
-
-// func NewQuestionRepository() *QuestionRepository {
-// 	return &QuestionRepository{}
-// }
-
-
-// func (r *QuestionRepository) Save(question []model.QuestionTable, formatSave string) error {
-// 	fmt.Println("Всё успешно сохранено в", formatSave)
-
-	
-
-// 	return nil
-// }
-
 package repository
 
 import (
@@ -31,6 +6,10 @@ import (
 	"strings"
 
 	"analysis-question-AI/internal/model"
+)
+
+import (
+    "encoding/json"
 )
 
 type QuestionRepository struct{}
@@ -44,15 +23,15 @@ func (r *QuestionRepository) Save(questions []model.QuestionTable, formatSave st
 
 	for i, q := range questions {
 		sb.WriteString(fmt.Sprintf("### Вопрос %d\n", i+1))
-		sb.WriteString(fmt.Sprintf("%s\n\n", q.Question))
+		// sb.WriteString(fmt.Sprintf("%s\n\n", q.Question))
 
 		for j, opt := range q.Options {
 			sb.WriteString(fmt.Sprintf("%d) %s\n", j+1, opt.Text))
-			if opt.IsCorrect {
-				sb.WriteString("✅ Правильный ответ\n")
-			} else {
-				sb.WriteString("❌ Неправильный ответ\n")
-			}
+			// if opt.IsCorrect {
+			// 	sb.WriteString("✅ Правильный ответ\n")
+			// } else {
+			// 	sb.WriteString("❌ Неправильный ответ\n")
+			// }
 			if opt.Explanation != "" {
 				sb.WriteString(fmt.Sprintf("_Пояснение_: %s\n", opt.Explanation))
 			}
@@ -70,3 +49,18 @@ func (r *QuestionRepository) Save(questions []model.QuestionTable, formatSave st
 	return nil
 }
 
+
+
+func (r *QuestionRepository) SaveJSON(questions []model.QuestionTable, fileName string) error {
+    data, err := json.MarshalIndent(questions, "", "  ")
+    if err != nil {
+        return fmt.Errorf("ошибка маршалинга JSON: %w", err)
+    }
+
+    if err := os.WriteFile(fileName, data, 0644); err != nil {
+        return fmt.Errorf("ошибка записи в файл: %w", err)
+    }
+
+    fmt.Println("JSON успешно сохранён в", fileName)
+    return nil
+}
