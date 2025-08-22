@@ -72,13 +72,12 @@ func main() {
 	}
 
 	// инициализация API Gemini
-	API_GEMINI_URL := env.Get("API_GEMINI_URL")
+	// API_GEMINI_URL := env.Get("API_GEMINI_URL")
 	API_GEMINI_KEY := env.Get("API_GEMINI_KEY")
-	apiGemini := external.NewGeminiAPI(API_GEMINI_URL, API_GEMINI_KEY, promptTemplate)
+	apiGemini := external.NewGeminiAPI(API_GEMINI_KEY, "gemini-2.5-flash", promptTemplate)
 
 	// инициализация API Google Docs (передаём финальный конфиг)
-	API_GOOGLE_DOCS_URL := env.Get("API_GOOGLE_DOCS_URL")
-	apiGoogleDocs := external.NewGoogleDocsAPI(API_GOOGLE_DOCS_URL, cfg)
+	apiGoogleDocs := external.NewGoogleDocsAPI(cfg)
 
 	// инициализация репозитория
 	repo := repository.NewQuestionRepository()

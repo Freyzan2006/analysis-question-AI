@@ -19,13 +19,11 @@ import (
 )
 
 type GoogleDocsAPI struct {
-	URL string
 	cfg *core.Config
 }
 
-func NewGoogleDocsAPI(url string, cfg *core.Config) *GoogleDocsAPI {
+func NewGoogleDocsAPI(cfg *core.Config) *GoogleDocsAPI {
 	return &GoogleDocsAPI{
-		URL: url,
 		cfg: cfg,
 	}
 }
