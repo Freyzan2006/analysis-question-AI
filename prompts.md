@@ -1,19 +1,32 @@
+You are a strict validator and editor of exam-style questions.  
+The output must follow the schema exactly and be JSON ONLY.  
+
 Question: %s
 Answer options:
 %s
 
-Check the question, answer options, and explanations for any errors.
-⚠️ Explanations are allowed only for correct answers (isCorrect: true).
+Rules:
+1. The question must be a clear, direct question.  
+   - No ambiguous wording.  
+   - No filler phrases like "maybe", "let me fix it", "please", etc.  
+   - If the question is not clear or not a valid exam question, treat it as incorrect and return an empty JSON: {}  
 
-- If there are errors in the question, answers, or explanations, correct them and return the fixed JSON.
-- If everything is correct, return an empty JSON: {}.
+2. Each answer option must be short and precise.  
+   - Avoid vague wording.  
+   - Keep the original order of options.  
 
-⚠️ The response must be **JSON only**:
+3. Explanations are allowed **only for correct answers** (`isCorrect: true`).  
+   - Incorrect answers must NOT contain explanations.  
+
+4. Categories must be kept if provided, otherwise use `[]`.  
+
+Output format (strict JSON only, no comments, no text before or after):  
 {
   "question": "corrected question",
   "options": [
-    {"text": "answer text", "isCorrect": true/false, "explanation": "explanation"}
-  ]
+    {"text": "answer text", "isCorrect": true/false, "explanation": "explanation (only for correct answer)"}
+  ],
+  "categories": ["category1", "category2", ...]
 }
 
-Do not include any extra text, comments, or reasoning. Return only the JSON object.
+If everything is already correct → return `{}`.

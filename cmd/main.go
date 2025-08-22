@@ -65,7 +65,10 @@ func main() {
 		ReadRange:          finalFlags.GoogleReadRange,
 		ServiceAccountFile: finalFlags.GoogleServiceAccountFile,
 		PromptsPath:        finalFlags.GooglePromptsPath,
+		Limit:              finalFlags.GoogleDocsLimit,
+		Sheets:             finalFlags.GoogleDocsSheets,
 	}
+
 	promptTemplate, err := core.LoadPrompt(cfg.PromptsPath)
 	if err != nil {
 		log.Fatal(err)
@@ -80,7 +83,7 @@ func main() {
 	apiGoogleDocs := external.NewGoogleDocsAPI(cfg)
 
 	// инициализация репозитория
-	repo := repository.NewQuestionRepository()
+	repo := repository.NewQuestionRepository(cfg)
 
 	// инициализация сервисов
 	googleDocsSvc := service.NewGoogleDocsService(apiGoogleDocs, repo)

@@ -32,19 +32,38 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
         return nil, fmt.Errorf("ошибка получения вопросов: %w", err)
     }
 
-	
+	log.Println("Какие вопросы получены:", questions)
 
 
 	
 
-    var results []model.QuestionTable
-    for _, q := range questions {
-		analyzed, err := s.api.GenerateText(q)
+    // var results []model.QuestionTable
+    // for _, q := range questions {
+	// 	analyzed, err := s.api.GenerateText(q)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	results = append(results, *analyzed)
+	// }
+
+	var results []model.QuestionTable
+	for _, q := range questions {
+		analyzed, changed, err := s.api.GenerateText(q)
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		if changed {
+			log.Printf("Вопрос обновлён: %s → %s\n", q.Question, analyzed.Question)
+		} else {
+			log.Printf("Вопрос без изменений: %s\n", q.Question)
+		}
+
 		results = append(results, *analyzed)
 	}
+
+	
+
 
 
    
@@ -55,6 +74,11 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
 	if err := s.repo.SaveJSON(results, "./answers.json"); err != nil {
 		return nil, fmt.Errorf("ошибка сохранения: %w", err)
 	}
+
+	if err := s.repo.SaveToSheets(results, "Answers"); err != nil {
+		return nil, fmt.Errorf("ошибка сохранения в Google Sheets: %w", err)
+	}
+
 
     return results, nil
 }

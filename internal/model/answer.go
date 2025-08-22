@@ -11,12 +11,13 @@ package model
 
 
 type AnswerOption struct {
-	Text      string
-	IsCorrect bool
-	Explanation string
+	Text        string `json:"text"`
+	IsCorrect   bool   `json:"isCorrect"`
+	Explanation string `json:"explanation"`
 }
 
 type QuestionTable struct {
-	Question string
-	Options  []AnswerOption
+	Question   string         `json:"question"`
+	Options    []AnswerOption `json:"options"`
+	Categories []string       `json:"categories"` // <-- добавили
 }

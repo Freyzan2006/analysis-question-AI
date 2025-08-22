@@ -1,19 +1,20 @@
-Вопрос: %s
-Варианты ответов:
+Question: %s
+Answer options:
 %s
 
-Проверь вопрос и варианты:
+Check the question, answer options, and explanations for any errors.
+⚠️ Explanations are allowed only for correct answers (isCorrect: true).
 
-1. Есть ли ошибки в тексте вопроса, в ответах или в пояснениях? Ошибки — это опечатки, неправильные формулы, неверные пояснения.
-2. Исправь ошибки в вопросе, ответах и пояснениях.
-3. Если ошибок нет, просто верни исходные данные без изменений.
+- If there are errors in the question, answers, or explanations, correct them and return the fixed JSON.
+- If everything is correct, return an empty JSON: {}.
 
-⚠️ Ответ должен быть **только в формате JSON**:
+⚠️ The response must be **JSON only**:
 {
-  "question": "исправленный или исходный вопрос",
+  "question": "corrected question",
   "options": [
-    {"text": "текст ответа", "isCorrect": true/false, "explanation": "пояснение"},
-    ...
-  ]
+    {"text": "answer text", "isCorrect": true/false, "explanation": "explanation"}
+  ],
+  "categories": ["category1", "category2", ...]
 }
-Не добавляй лишний текст, комментарии или размышления.
+
+Do not include any extra text, comments, or reasoning. Return only the JSON object.

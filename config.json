@@ -1,6 +1,9 @@
 {
   "spreadsheetId": "1B-OgvMNFt8pApbpwbabVG5rHqp29ztLMOK9yqsagd1Q",
-  "readRange": "'Expected value'!A161:F164", 
+  "sheets": [
+    "Expected value!A161:E"
+  ],
+  "limit": 1,
   "serviceAccountFile": "analysis-question-ai-230c2feec375.json",
   "promptsPath": "./prompts.md"
 }

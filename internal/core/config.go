@@ -43,6 +43,8 @@ type Config struct {
 	ReadRange          string `json:"readRange"`
 	ServiceAccountFile string `json:"serviceAccountFile"`
 	PromptsPath        string `json:"promptsPath"`
+	Limit              int    `json:"limit"`
+	Sheets             []string `json:"sheets"`
 }
 
 func LoadConfig(path string) (*Config, error) {

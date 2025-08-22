@@ -89,6 +89,7 @@ import (
 	"analysis-question-AI/internal/core"
 	"flag"
 	"log"
+	"analysis-question-AI/internal/core/types"
 )
 
 type flagsConfig struct {
@@ -97,6 +98,8 @@ type flagsConfig struct {
 	GoogleReadRange         string
 	GoogleServiceAccountFile string
 	GooglePromptsPath       string
+	GoogleDocsLimit         int
+	GoogleDocsSheets        []string
 }
 
 type Flags interface {
@@ -118,6 +121,8 @@ func (f *flags) GetFlags() *flagsConfig {
 		serviceAccountFile string
 		promptsPath        string
 		configPath         string
+		limit              int
+		sheets             types.StringSliceFlag
 	)
 
 	// Определяем флаги
@@ -127,6 +132,8 @@ func (f *flags) GetFlags() *flagsConfig {
 	flag.StringVar(&serviceAccountFile, "serviceAccountFile", "", "Путь к JSON ключу сервисного аккаунта")
 	flag.StringVar(&promptsPath, "promptsPath", "", "Путь к папке с prompts")
 	flag.StringVar(&configPath, "config", "config.json", "Путь к config.json")
+	flag.IntVar(&limit, "limit", 0, "Максимальное количество вопросов (0 = без лимита)")
+	flag.Var(&sheets, "sheets", "Список листов (можно указывать несколько раз)")
 	flag.Parse()
 
 	// Загружаем конфиг
@@ -149,9 +156,17 @@ func (f *flags) GetFlags() *flagsConfig {
 		cfg.PromptsPath = promptsPath
 	}
 
+	if limit != 0 {
+		cfg.Limit = limit
+	}
+
+	if len(sheets) > 0 {
+		cfg.Sheets = sheets
+	}
+
 	// Проверка обязательных параметров
-	if cfg.SpreadsheetID == "" || cfg.ReadRange == "" || cfg.ServiceAccountFile == "" {
-		log.Fatal("Обязательные параметры отсутствуют: spreadsheetId, readRange, serviceAccountFile")
+	if cfg.SpreadsheetID == "" || len(cfg.Sheets) == 0 || cfg.ServiceAccountFile == "" {
+		log.Fatal("Обязательные параметры отсутствуют: spreadsheetId, Sheets, serviceAccountFile")
 	}
 
 	return &flagsConfig{
@@ -160,5 +175,7 @@ func (f *flags) GetFlags() *flagsConfig {
 		GoogleReadRange:         cfg.ReadRange,
 		GoogleServiceAccountFile: cfg.ServiceAccountFile,
 		GooglePromptsPath:       cfg.PromptsPath,
+		GoogleDocsLimit:         cfg.Limit,
+		GoogleDocsSheets:        cfg.Sheets,
 	}
 }
