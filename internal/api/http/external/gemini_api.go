@@ -159,96 +159,102 @@ func NewGeminiAPI(apiKey string, model string, promptTemplate string) *GeminiAPI
     }
 }
 
+// func (a *GeminiAPI) GenerateText(q model.QuestionTable) (*model.QuestionTable, bool, error) {
+//     ctx := context.Background()
+
+//     prompt := fmt.Sprintf(a.PromptTemplate, q.Question, formatOptions(q.Options))
+//     resp, err := a.client.Models.GenerateContent(ctx, a.Model, genai.Text(prompt), nil)
+//     if err != nil {
+//         return nil, false, fmt.Errorf("ошибка при обращении к Gemini: %w", err)
+//     }
+
+//     raw := strings.TrimSpace(resp.Text())
+//     jsonResult := strings.Trim(raw, " \n`")
+//     jsonResult = strings.TrimPrefix(jsonResult, "json")
+//     jsonResult = strings.TrimSpace(jsonResult)
+
+//     if jsonResult == "" || jsonResult == "{}" {
+//         return &q, false, nil // ничего не меняем
+//     }
+
+//     var updated model.QuestionTable
+//     if err := json.Unmarshal([]byte(jsonResult), &updated); err != nil {
+//         return nil, false, fmt.Errorf("ошибка парсинга JSON от Gemini: %w", err)
+//     }
+
+//     if updated.Question == "" && len(updated.Options) == 0 && len(updated.Categories) == 0 {
+//         return &q, false, nil // пустое изменение
+//     }
+
+//     // Проверяем, были ли изменения
+//     changed := false
+//     merged := q
+
+//     if updated.Question != "" && updated.Question != q.Question {
+//         merged.Question = updated.Question
+//         changed = true
+//     }
+//     if len(updated.Options) > 0 {
+//         merged.Options = updated.Options
+//         changed = true
+//     }
+//     if len(updated.Categories) > 0 {
+//         merged.Categories = updated.Categories
+//         changed = true
+//     }
+
+//     return &merged, changed, nil
+// }
+
 func (a *GeminiAPI) GenerateText(q model.QuestionTable) (*model.QuestionTable, bool, error) {
     ctx := context.Background()
 
     prompt := fmt.Sprintf(a.PromptTemplate, q.Question, formatOptions(q.Options))
-    resp, err := a.client.Models.GenerateContent(ctx, a.Model, genai.Text(prompt), nil)
+
+    resp, err := a.client.Models.GenerateContent(
+        ctx,
+        a.Model,
+        genai.Text(prompt),
+        nil,
+    )
     if err != nil {
         return nil, false, fmt.Errorf("ошибка при обращении к Gemini: %w", err)
     }
 
     raw := strings.TrimSpace(resp.Text())
-    jsonResult := strings.Trim(raw, " \n`")
-    jsonResult = strings.TrimPrefix(jsonResult, "json")
-    jsonResult = strings.TrimSpace(jsonResult)
+    clean := extractJSON(raw)
 
-    if jsonResult == "" || jsonResult == "{}" {
-        return &q, false, nil // ничего не меняем
+    // Если Gemini вернул пустой JSON или ничего
+    if clean == "" || clean == "{}" {
+        return &q, false, nil
     }
 
+    // Парсим JSON
     var updated model.QuestionTable
-    if err := json.Unmarshal([]byte(jsonResult), &updated); err != nil {
-        return nil, false, fmt.Errorf("ошибка парсинга JSON от Gemini: %w", err)
+    if err := json.Unmarshal([]byte(clean), &updated); err != nil {
+        return nil, false, fmt.Errorf("ошибка парсинга JSON от Gemini: %w\nraw response: %s", err, raw)
     }
 
-    if updated.Question == "" && len(updated.Options) == 0 && len(updated.Categories) == 0 {
-        return &q, false, nil // пустое изменение
+
+    // 🔹 если Gemini не вернул categories — берём старые
+    if len(updated.Categories) == 0 {
+        updated.Categories = q.Categories
     }
 
-    // Проверяем, были ли изменения
-    changed := false
-    merged := q
+    return &updated, true, nil
+}
 
-    if updated.Question != "" && updated.Question != q.Question {
-        merged.Question = updated.Question
-        changed = true
+func extractJSON(s string) string {
+    start := strings.Index(s, "{")
+    end := strings.LastIndex(s, "}")
+    if start >= 0 && end > start {
+        return s[start : end+1]
     }
-    if len(updated.Options) > 0 {
-        merged.Options = updated.Options
-        changed = true
-    }
-    if len(updated.Categories) > 0 {
-        merged.Categories = updated.Categories
-        changed = true
-    }
-
-    return &merged, changed, nil
+    return ""
 }
 
 
 
-
-// func (a *GeminiAPI) GenerateText(q model.QuestionTable) (*model.QuestionTable, error) {
-//     ctx := context.Background()
-
-//     // Формируем промпт
-//     prompt := fmt.Sprintf(a.PromptTemplate, q.Question, formatOptions(q.Options))
-
-//     // Запрос в Gemini
-//     resp, err := a.client.Models.GenerateContent(
-//         ctx,
-//         a.Model,
-//         genai.Text(prompt),
-//         nil,
-//     )
-//     if err != nil {
-//         return nil, fmt.Errorf("ошибка при обращении к Gemini: %w", err)
-//     }
-
-//     // Ответ модели в текстовом виде
-//     raw := resp.Text()
-//     fmt.Println("Raw response:", raw)
-
-//     // Очистка от ```json ... ```
-//     jsonResult := strings.TrimSpace(raw)
-//     jsonResult = strings.TrimPrefix(jsonResult, "```json")
-//     jsonResult = strings.TrimPrefix(jsonResult, "```")
-//     jsonResult = strings.TrimSuffix(jsonResult, "```")
-//     jsonResult = strings.TrimSpace(jsonResult)
-
-//     if jsonResult == "" || jsonResult == "{}" {
-//         return &q, nil
-//     }
-
-//     // Парсим JSON в структуру QuestionTable
-//     var updated model.QuestionTable
-//     if err := json.Unmarshal([]byte(jsonResult), &updated); err != nil {
-//         return nil, fmt.Errorf("ошибка парсинга JSON от Gemini: %w", err)
-//     }
-
-//     return &updated, nil
-// }
 
 func formatOptions(options []model.AnswerOption) string {
     var result string
