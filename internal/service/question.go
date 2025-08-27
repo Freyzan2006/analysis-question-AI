@@ -1,8 +1,8 @@
 package service 
 
 import (
-	"log"
 	"fmt"
+	"log"
 )
 
 import (
@@ -11,18 +11,24 @@ import (
 	"analysis-question-AI/internal/api/http/external"
 )
 
+import (
+	"analysis-question-AI/internal/core"
+)
+
 
 type QuestionService struct {
 	api  external.GeminiAPI
 	repo repository.QuestionRepository
 	svc  GoogleDocsService
+	log  *core.Logger
 }
 
-func NewQuestionService(api *external.GeminiAPI, repo *repository.QuestionRepository, svc *GoogleDocsService) *QuestionService {
+func NewQuestionService(api *external.GeminiAPI, repo *repository.QuestionRepository, svc *GoogleDocsService, log *core.Logger) *QuestionService {
 	return &QuestionService{
 		repo: *repo,
 		api:  *api,
 		svc:  *svc,
+		log:  log,
 	}
 }
 
@@ -35,34 +41,23 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
         return nil, fmt.Errorf("ошибка получения вопросов: %w", err)
     }
 
-	log.Println("Какие вопросы получены:", questions)
+	s.log.Info("Получено вопросов:", len(questions))	
 
 
 	var results []model.QuestionTable
-	// for _, q := range questions {
-	// 	analyzed, changed, err := s.api.GenerateText(q)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
 
-	// 	if changed {
-	// 		log.Printf("Вопрос обновлён: %s → %s\n", q.Question, analyzed.Question)
-	// 	} else {
-	// 		log.Printf("Вопрос без изменений: %s\n", q.Question)
-	// 	}
-
-	// 	results = append(results, *analyzed)
-	// }
 	for _, q := range questions {
         analyzed, changed, err := s.api.GenerateText(q.QuestionTable)
         if err != nil { return nil, err }
 
         if changed {
-            row := q.StartRow // уже 1-based
+            row := q.StartRow 
             if err := s.svc.UpdateQuestionBlock(q.SheetName, row, *analyzed); err != nil {
                 log.Printf("Ошибка обновления '%s'!A%d:E%d: %v", q.SheetName, row, row+3, err)
             }
-        }
+
+			s.log.Info("Обновлен вопрос в листе ", q.SheetName, " Блок с строкой ", row, " - ", row+3)
+        } 
 
         results = append(results, *analyzed)
     }
@@ -78,9 +73,6 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
 		return nil, fmt.Errorf("ошибка сохранения: %w", err)
 	}
 
-	// if err := s.repo.SaveToSheets(results, "Answers"); err != nil {
-	// 	return nil, fmt.Errorf("ошибка сохранения в Google Sheets: %w", err)
-	// }
 
 
     return results, nil

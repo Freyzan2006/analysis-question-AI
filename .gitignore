@@ -1,3 +1,5 @@
 .env
 .secret
 analysis-question-ai-230c2feec375.json
+build
+logs

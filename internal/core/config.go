@@ -45,6 +45,7 @@ type Config struct {
 	PromptsPath        string `json:"promptsPath"`
 	Limit              int    `json:"limit"`
 	Sheets             []string `json:"sheets"`
+	LogPathFile            string `json:"logFile"`
 }
 
 func LoadConfig(path string) (*Config, error) {

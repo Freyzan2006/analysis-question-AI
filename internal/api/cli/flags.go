@@ -93,13 +93,13 @@ import (
 )
 
 type flagsConfig struct {
-	FileOutput              string
 	GoogleSpreadsheetID     string
 	GoogleReadRange         string
 	GoogleServiceAccountFile string
 	GooglePromptsPath       string
 	GoogleDocsLimit         int
 	GoogleDocsSheets        []string
+	LogPathFile             string
 }
 
 type Flags interface {
@@ -115,7 +115,6 @@ func NewFlags() *flags {
 func (f *flags) GetFlags() *flagsConfig {
 	// Значения по умолчанию
 	var (
-		fileOutput         string
 		spreadsheetID      string
 		readRange          string
 		serviceAccountFile string
@@ -123,10 +122,10 @@ func (f *flags) GetFlags() *flagsConfig {
 		configPath         string
 		limit              int
 		sheets             types.StringSliceFlag
+		logPathFile        string
 	)
 
 	// Определяем флаги
-	flag.StringVar(&fileOutput, "fileOutput", "./result.json", "Файл с ответами")
 	flag.StringVar(&spreadsheetID, "spreadsheetId", "", "Google Spreadsheet ID")
 	flag.StringVar(&readRange, "readRange", "", "Диапазон ячеек (например: 'Лист1'!A1:C10)")
 	flag.StringVar(&serviceAccountFile, "serviceAccountFile", "", "Путь к JSON ключу сервисного аккаунта")
@@ -134,6 +133,7 @@ func (f *flags) GetFlags() *flagsConfig {
 	flag.StringVar(&configPath, "config", "config.json", "Путь к config.json")
 	flag.IntVar(&limit, "limit", 0, "Максимальное количество вопросов (0 = без лимита)")
 	flag.Var(&sheets, "sheets", "Список листов (можно указывать несколько раз)")
+	flag.StringVar(&logPathFile, "logPath", "logs/app.log", "Путь к файлу логов")
 	flag.Parse()
 
 	// Загружаем конфиг
@@ -164,18 +164,22 @@ func (f *flags) GetFlags() *flagsConfig {
 		cfg.Sheets = sheets
 	}
 
+	if logPathFile != "" {
+		cfg.LogPathFile = logPathFile
+	}
+
 	// Проверка обязательных параметров
 	if cfg.SpreadsheetID == "" || len(cfg.Sheets) == 0 || cfg.ServiceAccountFile == "" {
 		log.Fatal("Обязательные параметры отсутствуют: spreadsheetId, Sheets, serviceAccountFile")
 	}
 
 	return &flagsConfig{
-		FileOutput:              fileOutput,
 		GoogleSpreadsheetID:     cfg.SpreadsheetID,
 		GoogleReadRange:         cfg.ReadRange,
 		GoogleServiceAccountFile: cfg.ServiceAccountFile,
 		GooglePromptsPath:       cfg.PromptsPath,
 		GoogleDocsLimit:         cfg.Limit,
 		GoogleDocsSheets:        cfg.Sheets,
+		LogPathFile:             cfg.LogPathFile,
 	}
 }

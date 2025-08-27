@@ -1,69 +1,92 @@
 # analysis-question-AI
 
-# Описание
------------------------------------------
-analysis-question-AI - это microservice, который предназначен для анализа вопросов и ответов от ai.
-Анализирует корректность ответа и выдает правильный ответ.
------------------------------------------
+![Intro](./public/intro.png)
 
-# Требования к запуску
------------------------------------------
-* Нужно установить docker и docker-compose или golang
-* Нужно иметь свой аккаунт в google cloud
-* Нужно иметь свой api key в google cloud
-*.env*
-```bash 
-API_GEMINI_KEY= # вставить свой api key
-API_GEMINI_URL= # вставить свой url
-```
-Это необходимо для работы gemini api
------------------------------------------
+## 📌 Описание
+`analysis-question-AI` — это микросервис для анализа вопросов и ответов, полученных от AI.  
+Он проверяет корректность ответа и возвращает правильный.
 
-# Запуск
------------------------------------------
+---
 
-## Через Docker/Docker-compose
-1. Установить docker и docker-compose
-2. git clone https://github.com/Freyzan2006/analysis-question-AI.git 
-3. cd analysis-question-AI
-4. Нужно создать .env [Ссылка для получение данных для .env](https://aistudio.google.com/apikey)
+## 🚀 Требования
+1. Установить:
+   - [Docker / Docker Compose](https://docs.docker.com/get-started/get-docker/) **или**
+   - [Golang](https://go.dev/doc/install)
+2. Аккаунт в [Google Cloud](https://console.cloud.google.com/)
+3. Создать проект в Google Cloud → [ссылка](https://console.cloud.google.com/welcome/new)
+4. Получить [API ключ Gemini](https://aistudio.google.com/apikey) и добавить его в `.env`:
+   ```bash
+   API_GEMINI_KEY=ваш_api_key
+   ```
+5. Создать **service account** в Google Cloud → [инструкция](https://console.cloud.google.com/iam-admin/serviceaccounts)
+6. Скачать JSON-ключ, сохранить его в корень проекта и указать в настройках.
+
+---
+
+## ⚙️ Настройка
+
+### Вариант 1: `config.json`
+Пример: `./analysis-question-AI/config.json`
+
+| Поле                 | Тип       | Пример значения                                  | Обязателен | Описание |
+|----------------------|----------|--------------------------------------------------|------------|----------|
+| `spreadsheetId`      | string   | `"1B-OgvMNFt8pApbpwbabVG5rHqp29ztLMOK9yqsagd1Q"` | ✅ | ID Google Spreadsheet |
+| `sheets`             | string[] | `[ "Copy of Expected value!A165:E" ]`            | ✅ | Список листов и диапазонов |
+| `limit`              | int      | `1`                                              | ❌ | Ограничение количества вопросов (`0` = без лимита) |
+| `serviceAccountFile` | string   | `"analysis-question-ai-230c2feec375.json"`       | ✅ | JSON-ключ сервисного аккаунта |
+| `promptsPath`        | string   | `"./prompts.md"`                                 | ❌ | Путь к файлу с prompts |
+
+---
+
+### Вариант 2: Флаги запуска
+| Флаг                  | Тип       | По умолчанию         | Обязателен | Описание |
+|-----------------------|-----------|----------------------|------------|----------|
+| `-spreadsheetId`      | string    | `""`                 | ✅ | ID Google Spreadsheet |
+| `-readRange`          | string    | `""`                 | ❌ | Диапазон (`Лист1!A1:C10`) |
+| `-serviceAccountFile` | string    | `""`                 | ✅ | Путь к JSON-ключу |
+| `-promptsPath`        | string    | `""`                 | ❌ | Папка/файл с prompts |
+| `-config`             | string    | `config.json`        | ❌ | Путь к config.json |
+| `-limit`              | int       | `0`                  | ❌ | Лимит вопросов |
+| `-sheets`             | string[]  | `[]`                 | ✅ | Листы (`-sheets Лист1 -sheets Лист2`) |
+| `-logPath`            | string    | `logs/app.log`       | ❌ | Файл логов |
+
+👉 Флаги приоритетнее `config.json`, можно комбинировать.
+
+---
+
+## ▶️ Запуск
+
+### Вариант 1: Docker/Docker Compose
 ```bash
-echo "API_GEMINI_KEY=<КЛЮЧ_к_API> API_GEMINI_URL=<URL_к_API>" > .env
-```
-5. 
-```bash
+git clone https://github.com/Freyzan2006/analysis-question-AI.git
+cd analysis-question-AI
+echo "API_GEMINI_KEY=<API_KEY>" > .env
 docker-compose build
 docker-compose run --rm cli --fileInput test.json --fileOutput result.json
 ```
-* Здесь можно получить ключ - https://aistudio.google.com/apikey
-* Здесь можно получить url - https://aistudio.google.com/apikey
 
-## Через golang
-1. Установить golang 1.24.4 или выше
-2. Скачивание репозитория:
-```bash
-git clone https://github.com/Freyzan2006/analysis-question-AI.git
-```
+---
 
-3. Переход в директиву:
-```bash
-cd analysis-question-AI
-```
+### Вариант 2: Golang
+1. Установить Go **>=1.24.4**
+2. Клонировать проект:
+   ```bash
+   git clone https://github.com/Freyzan2006/analysis-question-AI.git
+   cd analysis-question-AI
+   ```
+3. Создать `.env`:
+   ```bash
+   echo "API_GEMINI_KEY=<API_KEY>" > .env
+   ```
+4. Собрать:
+   ```bash
+   go build -o ./build/analysis-question-AI ./cmd/main.go
+   ```
+5. Запустить:
+   ```bash
+   ./build/analysis-question-AI
+   ```
 
-4. Создайте .env [Ссылка для получение данных для .env](https://aistudio.google.com/apikey)
-```bash
-echo "API_GEMINI_KEY=<КЛЮЧ_к_API> API_GEMINI_URL=<URL_к_API>" > .env
-```
+---
 
-5. Сборка проект под вашу OS:
-```bash
-go build -o ./build/analysis-question-AI ./cmd/main.go
-```
-
-6. Запуск:
-```bash
-./build/analysis-question-AI
-```
-
-Всё готово !
------------------------------------------
+✅ Всё готово к использованию!
