@@ -8,6 +8,9 @@ import (
 	"analysis-question-AI/internal/api/http/external"
 )
 
+import (
+	"analysis-question-AI/internal/app"
+)
 
 
 
@@ -55,4 +58,10 @@ func main() {
 	// инициализация CLI команд
 	commands := cli.NewCommands(flags, questionSvc, repo)
 	commands.Run()
+
+
+
+
+	application := app.NewCheckingCorrectingQuestionApplication(log)
+	application.Run()
 }
