@@ -5,37 +5,29 @@ import (
 )
 
 type analysisCommand struct {
-	flags 	*cli.flagsConfig
 	svc 	*analysisService
 	log 	*core.Logger
+	flags 	*cli.flagsConfig
+
 }
 
 
-func newAnalysisCommand(log *core.Logger, flags *cli.flagsConfig, svc *analysisService) *analysisCommand {
+func newAnalysisCommand(svc *analysisService, log *core.Logger, flags *cli.flagsConfig) *analysisCommand {
 	return &analysisCommand{
-		log: log,
-		flags: flags,
 		svc: svc,
+		log: log,
+		flags: flags,	
 	}
 }
 
-func (a *analysisCommand) AnalyzeAndCorrectQuestions(questions []model.QuestionTable) {
+func (a *analysisCommand) AnalyzeQuestions(questions []QuestionTable) []QuestionTable {
+
+	questions, err := a.svc.findWrongQuestions(questions)
+	if err != nil {
+		log.Fatal(err)
+		panic(err)
+	}
 	
 
-
-	for _, q := range questions {
-        analyzed, changed, err := a.svc.AnalyzeQuestions(questions)
-        if err != nil { return nil, err }
-
-        if changed {
-            row := q.StartRow 
-            if err := a.svc.CorrectQuestions(questions); err != nil {
-                a.log.Printf("Ошибка обновления '%s'!A%d:E%d: %v", q.SheetName, row, row+3, err)
-            }
-
-			a.log.Info("Обновлен вопрос в листе ", q.SheetName, " Блок с строкой ", row, " - ", row+3)
-        } 
-
-        results = append(results, *analyzed)
-    }
+	return questions
 }

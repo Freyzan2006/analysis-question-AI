@@ -1,20 +1,11 @@
 package sheet 
 
-
-type AnswerOption struct {
-	Text        string `json:"text"`
-	IsCorrect   bool   `json:"isCorrect"`
-	Explanation string `json:"explanation"`
-}
-
-type QuestionTable struct {
-	Question   string         `json:"question"`
-	Options    []AnswerOption `json:"options"`
-	Categories []string       `json:"categories"` // <-- добавили
-}
+import (
+	"analysis-question-AI/internal/module/analysis"
+)
 
 type QuestionWithRow struct {
-    QuestionTable
+    analysis.QuestionTable
     SheetName string // из какого листа
     StartRow  int    // 1-based: первая строка 4-строчного блока
 }

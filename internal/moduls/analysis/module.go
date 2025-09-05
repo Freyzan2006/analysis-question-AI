@@ -11,10 +11,10 @@ type AnalysisModule struct {
 
 func NewAnalysisModule(log *core.Logger, flags *cli.flagsConfig) *AnalysisModule {
 
-	api := newAnalysisApi();
+	api := newAnalysisApi(log, flags.APIKey, flags.Model, flags.PromptTemplate);
 	repo := newAnalysisRepository(api);
-	svc := newAnalysisService(repo);
-	command := newAnalysisCommand(log, flags, svc);
+	svc := newAnalysisService(repo, log);
+	command := newAnalysisCommand(svc, log, flags);
 
 	return &AnalysisModule{
 		command: command,

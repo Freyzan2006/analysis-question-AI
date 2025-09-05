@@ -33,9 +33,10 @@ func (c *CheckingCorrectingQuestionApplication) Run() {
 	appLog.Info("Get all questions from sheet")
 	allQuestion := sheetCmd.AllQuestions();
 
-	appLog.Info("Analyze and correct questions")
-	analysisCmd.AnalyzeAndCorrectQuestions(allQuestion);
+	appLog.Info("Analyze questions")
+	correctedAnswers := analysisCmd.AnalyzeQuestions(allQuestion);
 
-	appLog.Info("Get all changed questions")
-	analysisCmd.AllChangedQuestions();
+	appLog.Info("Correct questions")
+	sheetCmd.SaveQuestions(correctedAnswers);
+
 }
