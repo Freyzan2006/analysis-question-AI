@@ -2,23 +2,37 @@ package app
 
 import (
 	"analysis-question-AI/internal/modules/analysis"
+	"analysis-question-AI/internal/modules/sheet"
 	"analysis-question-AI/internal/api/cli"
 )
 
 type CheckingCorrectingQuestionApplication struct {
 	analysisModule 		*analysis.AnalysisModule
-	sheetModule    		*analysis.SheetModule
+	sheetModule    		*sheet.SheetModule
 
 	appLog          	*core.Logger
 }
 
 func NewCheckingCorrectingQuestionApplication(log *core.Logger) *CheckingCorrectingQuestionApplication {
 	flags := cli.NewFlags()
-	flags = flags.GetFlags()
+	finalFlags := flags.GetFlags() 
+
+	env := core.NewEnvironment()
+	
+	log := core.NewLogger(finalFlags.LogPathFile)
+	cfg := &core.Config{
+		SpreadsheetID:      finalFlags.GoogleSpreadsheetID,
+		ReadRange:          finalFlags.GoogleReadRange,
+		ServiceAccountFile: finalFlags.GoogleServiceAccountFile,
+		PromptsPath:        finalFlags.GooglePromptsPath,
+		Limit:              finalFlags.GoogleDocsLimit,
+		Sheets:             finalFlags.GoogleDocsSheets,
+	}
+
 
 	return &CheckingCorrectingQuestionApplication{
-		analysisModule: analysis.NewAnalysisModule(log, flags),
-		sheetModule:    analysis.NewSheetModule(log, flags),
+		analysisModule: analysis.NewAnalysisModule(log, finalFlags, env, cfg),
+		sheetModule:    analysis.NewSheetModule(log, finalFlags, cfg),
 
 		appLog:         log,
 	}

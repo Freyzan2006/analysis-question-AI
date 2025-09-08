@@ -16,14 +16,20 @@ import (
 )
 
 import (
-    "analysis-question-AI/internal/analysis"
+    "analysis-question-AI/internal/modules/analysis"
+)
+
+import (
+    "analysis-question-AI/internal/model"
 )
 
 
 type sheetApi struct {}
 
-func newSheetApi() *sheetApi {
-	return &sheetApi{}
+func newSheetApi(cfg *core.Config) *sheetApi {
+	return &sheetApi{
+        cfg: cfg,
+    }
 }
 
 
@@ -104,6 +110,33 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
     return out, nil
 }
 
+
+
+// func (a *GoogleDocsService) UpdateQuestionRow(sheetName string, rowIndex int, q analysis.QuestionTable) error {
+// 	values := [][]interface{}{
+// 		{
+// 			q.Question,
+// 			q.Options[0].Text,
+// 			q.Options[0].IsCorrect,
+// 			q.Options[0].Explanation,
+// 			q.Options[1].Text,
+// 			q.Options[1].IsCorrect,
+// 			q.Options[1].Explanation,
+// 			q.Options[2].Text,
+// 			q.Options[2].IsCorrect,
+// 			q.Options[2].Explanation,
+// 			q.Options[3].Text,
+// 			q.Options[3].IsCorrect,
+// 			q.Options[3].Explanation,
+// 			strings.Join(q.Categories, ", "),
+// 		},
+// 	}
+
+// 	writeRange := fmt.Sprintf("%s!A%d:N%d", sheetName, rowIndex, rowIndex)
+// 	err := a.api.UpdateRange(writeRange, values)
+
+// 	return err
+// }
 
 
 func (a *analysisApi) updateRange(a1 string, values [][]interface{}) error {

@@ -29,3 +29,13 @@ func (s *sheetCommand) AllQuestions() []QuestionWithRow {
 
 	return question
 }
+
+
+func (s *sheetCommand) SaveQuestions(questions []QuestionWithRow) {
+	err := s.svc.updateQuestions(questions)
+	if err != nil {
+		log.Fatal(err)
+		panic(err)
+	}
+
+}

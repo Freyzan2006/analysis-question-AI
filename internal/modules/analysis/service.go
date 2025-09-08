@@ -1,5 +1,9 @@
 package analysis
 
+import (
+	"analysis-question-AI/internal/core"
+	"analysis-question-AI/internal/entity"
+)
 
 type analysisService struct {
 	repo *analysisRepository
@@ -13,9 +17,9 @@ func newAnalysisService(repo *analysisRepository, log *core.Logger) *analysisSer
 	}
 }
 
-func findWrongQuestions(questions []QuestionTable) (QuestionTable, error) {
+func (a *analysisService) findWrongQuestions(questions []entity.QuestionWithRow) ([]entity.QuestionTable, error) {
 
-	var results []model.QuestionTable
+	var results []entity.QuestionTable
 
 	for _, q := range questions {
         analyzed, changed, err := a.repo.analyzeQuestions(q.QuestionTable)
@@ -30,11 +34,11 @@ func findWrongQuestions(questions []QuestionTable) (QuestionTable, error) {
 			// a.log.Info("Обновлен вопрос в листе ", q.SheetName, " Блок с строкой ", row, " - ", row+3)
 
 			results = append(results, *analyzed)
-			a.log("Не корректный вопрос в листе:", q.SheetName, " Строка: начиная", q.StartRow, "По концу", q.StartRow+3)
+			a.log.Info("Не корректный вопрос в листе:", q.SheetName, " Строка: начиная", q.StartRow, "По концу", q.StartRow+3)
         } 
     }
 
-	a.log("Найдено неправильных вопросов:", len(results))
+	a.log.Info("Найдено неправильных вопросов:", len(results))
 
 	return results, nil
 }

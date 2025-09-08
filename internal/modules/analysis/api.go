@@ -4,13 +4,12 @@ import (
     "context"
     "encoding/json"
     "fmt"
-    "log"
     "strings"
 
     "google.golang.org/genai"
 
-    "analysis-question-AI/internal/model"
     "analysis-question-AI/internal/core"
+    "analysis-question-AI/internal/entity"
 )
 
 type analysisApi struct {
@@ -41,8 +40,9 @@ func newAnalysisApi(log *core.Logger, apiKey string, model string, promptTemplat
 }
 
 
-func (a *analysisApi) analyzeQuestions(q QuestionTable) (*QuestionTable, bool, error) {
+func (a *analysisApi) analyzeQuestionsApi(q entity.QuestionTable) (*entity.QuestionTable, bool, error) {
     ctx := context.Background()
+
 
     prompt := fmt.Sprintf(a.PromptTemplate, q.Question, formatOptions(q.Options))
 
@@ -65,7 +65,7 @@ func (a *analysisApi) analyzeQuestions(q QuestionTable) (*QuestionTable, bool, e
     }
 
     // Парсим JSON
-    var updated QuestionTable
+    var updated entity.QuestionTable
     if err := json.Unmarshal([]byte(clean), &updated); err != nil {
         return nil, false, fmt.Errorf("ошибка парсинга JSON от Gemini: %w\nraw response: %s", err, raw)
     }

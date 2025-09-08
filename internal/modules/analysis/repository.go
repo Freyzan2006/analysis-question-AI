@@ -1,5 +1,9 @@
 package analysis
 
+import (
+	"analysis-question-AI/internal/entity"
+)
+
 
 type analysisRepository struct {
 	api *analysisApi
@@ -12,8 +16,8 @@ func newAnalysisRepository(api *analysisApi) *analysisRepository {
 }
 
 
-func (a *analysisApi) analyzeQuestions() (*QuestionTable, bool, error) {
-	analyzed, changed, err := a.api.analyzeQuestions() 
+func (a *analysisRepository) analyzeQuestions(q entity.QuestionTable) (*entity.QuestionTable, bool, error) {
+	analyzed, changed, err := a.api.analyzeQuestionsApi(q) 
 	if err != nil {
 		return nil, false, err
 	}

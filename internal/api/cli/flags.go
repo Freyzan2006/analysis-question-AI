@@ -92,7 +92,7 @@ import (
 	"analysis-question-AI/internal/core/types"
 )
 
-type flagsConfig struct {
+type FlagsConfig struct {
 	GoogleSpreadsheetID     string
 	GoogleReadRange         string
 	GoogleServiceAccountFile string
@@ -103,7 +103,7 @@ type flagsConfig struct {
 }
 
 type Flags interface {
-	GetFlags() *flagsConfig
+	GetFlags() *FlagsConfig
 }
 
 type flags struct{}
@@ -112,7 +112,7 @@ func NewFlags() *flags {
 	return &flags{}
 }
 
-func (f *flags) GetFlags() *flagsConfig {
+func (f *flags) GetFlags() *FlagsConfig {
 	// Значения по умолчанию
 	var (
 		spreadsheetID      string
@@ -173,7 +173,7 @@ func (f *flags) GetFlags() *flagsConfig {
 		log.Fatal("Обязательные параметры отсутствуют: spreadsheetId, Sheets, serviceAccountFile")
 	}
 
-	return &flagsConfig{
+	return &FlagsConfig{
 		GoogleSpreadsheetID:     cfg.SpreadsheetID,
 		GoogleReadRange:         cfg.ReadRange,
 		GoogleServiceAccountFile: cfg.ServiceAccountFile,

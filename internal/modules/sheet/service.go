@@ -17,3 +17,8 @@ func (s *sheetService) getQuestions() ([]QuestionWithRow, error) {
 
 	return questions, nil
 }
+
+func (s *sheetService) updateQuestions(questions []QuestionWithRow) error {
+	return s.repo.UpdateQuestionBlock(questions)
+}
+

@@ -42,7 +42,7 @@ func (s *QuestionService) Send() ([]model.QuestionTable, error) {
     }
 
 	s.log.Info("Получено вопросов:", len(questions))	
-
+	
 
 	var results []model.QuestionTable
 
