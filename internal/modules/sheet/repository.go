@@ -1,25 +1,27 @@
-package sheet 
+package sheet
 
 import (
 	"fmt"
 	"strings"
 
-	"analysis-question-AI/internal/modules/analysis"
+	"analysis-question-AI/internal/entity"
 )
 
 type sheetRepository struct {
 	api *sheetApi
 }
 
-func newSheetRepository() *sheetRepository {
-	return &sheetRepository{}
+func newSheetRepository(api *sheetApi) *sheetRepository {
+	return &sheetRepository{
+        api: api,
+    }
 }
 
-func (s *sheetRepository) findAll() ([]QuestionWithRow, error) {
+func (s *sheetRepository) findAll() ([]entity.QuestionWithRow, error) {
 	return s.api.getQuestions()
 }
 
-func (s *sheetRepository) UpdateQuestionBlock(sheet string, startRow int, qt analysis.QuestionTable) error {
+func (s *sheetRepository) UpdateQuestionBlock(sheet string, startRow int, qt entity.QuestionTable) error {
     // собираем 4 строки A:E
     values := make([][]interface{}, 4)
 

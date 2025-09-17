@@ -24,12 +24,12 @@ func newAnalysisCommand(svc *analysisService, log *core.Logger, flags *cli.Flags
 
 func (a *analysisCommand) AnalyzeQuestions(questions []entity.QuestionWithRow) []entity.QuestionTable {
 
-	questions, err := a.svc.findWrongQuestions(questions)
+	analyzedQuestions, err := a.svc.findWrongQuestions(questions)
 	if err != nil {
 		a.log.Fatal(err)
 		panic(err)
 	}
 	
 
-	return questions
+	return analyzedQuestions
 }

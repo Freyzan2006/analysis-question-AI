@@ -4,6 +4,7 @@ import (
 	"analysis-question-AI/internal/modules/analysis"
 	"analysis-question-AI/internal/modules/sheet"
 	"analysis-question-AI/internal/api/cli"
+	"analysis-question-AI/internal/core"
 )
 
 type CheckingCorrectingQuestionApplication struct {
@@ -19,7 +20,7 @@ func NewCheckingCorrectingQuestionApplication(log *core.Logger) *CheckingCorrect
 
 	env := core.NewEnvironment()
 	
-	log := core.NewLogger(finalFlags.LogPathFile)
+	
 	cfg := &core.Config{
 		SpreadsheetID:      finalFlags.GoogleSpreadsheetID,
 		ReadRange:          finalFlags.GoogleReadRange,
@@ -32,25 +33,26 @@ func NewCheckingCorrectingQuestionApplication(log *core.Logger) *CheckingCorrect
 
 	return &CheckingCorrectingQuestionApplication{
 		analysisModule: analysis.NewAnalysisModule(log, finalFlags, env, cfg),
-		sheetModule:    analysis.NewSheetModule(log, finalFlags, cfg),
+		sheetModule:    sheet.NewSheetModule(log, finalFlags, cfg),
 
 		appLog:         log,
 	}
 }
 
 func (c *CheckingCorrectingQuestionApplication) Run() {
-	appLog.Info("Start checking and correcting questions")
+	c.appLog.Info("Start checking and correcting questions")
 
-	analysisCmd := a.analysisModule.Commands();
-	sheetCmd := a.sheetModule.Commands();
+	analysisCmd := c.analysisModule.Commands();
+	sheetCmd := c.sheetModule.Commands();
 
-	appLog.Info("Get all questions from sheet")
+	c.appLog.Info("Get all questions from sheet")
 	allQuestion := sheetCmd.AllQuestions();
 
-	appLog.Info("Analyze questions")
+	c.appLog.Info("Analyze questions")
 	correctedAnswers := analysisCmd.AnalyzeQuestions(allQuestion);
+	
 
-	appLog.Info("Correct questions")
+	c.appLog.Info("Correct questions")
 	sheetCmd.SaveQuestions(correctedAnswers);
 
 }

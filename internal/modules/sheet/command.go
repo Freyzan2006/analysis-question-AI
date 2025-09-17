@@ -3,15 +3,16 @@ package sheet
 import (
 	"analysis-question-AI/internal/api/cli"
 	"analysis-question-AI/internal/core"
+	"analysis-question-AI/internal/entity"
 )
 
 type sheetCommand struct {
 	svc 	*sheetService
-	flags 	*cli.flagsConfig
+	flags 	*cli.FlagsConfig
 	log 	*core.Logger
 }
 
-func newSheetCommand(log *core.Logger, flags *cli.flagsConfig, svc *sheetService) *sheetCommand {
+func newSheetCommand(log *core.Logger, flags *cli.FlagsConfig, svc *sheetService) *sheetCommand {
 	return &sheetCommand{
 		svc: svc,
 		flags: flags,
@@ -20,10 +21,10 @@ func newSheetCommand(log *core.Logger, flags *cli.flagsConfig, svc *sheetService
 }
 
 
-func (s *sheetCommand) AllQuestions() []QuestionWithRow {
+func (s *sheetCommand) AllQuestions() []entity.QuestionWithRow {
 	question, err := s.svc.getQuestions()
 	if err != nil {
-		log.Fatal(err)
+		s.log.Fatal(err)
 		panic(err)
 	}
 
@@ -31,10 +32,10 @@ func (s *sheetCommand) AllQuestions() []QuestionWithRow {
 }
 
 
-func (s *sheetCommand) SaveQuestions(questions []QuestionWithRow) {
+func (s *sheetCommand) SaveQuestions(questions []entity.QuestionWithRow) {
 	err := s.svc.updateQuestions(questions)
 	if err != nil {
-		log.Fatal(err)
+		s.log.Fatal(err)
 		panic(err)
 	}
 

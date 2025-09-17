@@ -1,24 +1,31 @@
-package sheet 
+package sheet
+
+import (
+	"analysis-question-AI/internal/core"
+	"analysis-question-AI/internal/entity"
+)
 
 type sheetService struct {
 	repo *sheetRepository
+	log  *core.Logger
 }
 
-func newSheetService() *sheetService {
-	return &sheetService{}
+func newSheetService(repo *sheetRepository, log *core.Logger) *sheetService {
+	return &sheetService{
+		repo: repo,
+		log:  log,
+	}
 }
 
-
-func (s *sheetService) getQuestions() ([]QuestionWithRow, error) {
+func (s *sheetService) getQuestions() ([]entity.QuestionWithRow, error) {
 	questions, err := s.repo.findAll()
 	if err != nil {
-		log.Fatal(err)
+		s.log.Fatal(err)
 	}
 
 	return questions, nil
 }
 
-func (s *sheetService) updateQuestions(questions []QuestionWithRow) error {
+func (s *sheetService) updateQuestions(questions []entity.QuestionWithRow) error {
 	return s.repo.UpdateQuestionBlock(questions)
 }
-

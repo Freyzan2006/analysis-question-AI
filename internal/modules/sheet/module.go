@@ -1,21 +1,25 @@
 package sheet 
 
+import (
+	"analysis-question-AI/internal/api/cli"
+	"analysis-question-AI/internal/core"
+)
 
-type sheetModule struct {
-	commands *sheetCommands
+type SheetModule struct {
+	commands *sheetCommand
 }
 
-func NewSheetModule(log *core.Logger, flags *cli.flagsConfig, cfg *core.Config) *sheetModule {
+func NewSheetModule(log *core.Logger, flags *cli.FlagsConfig, cfg *core.Config) *SheetModule {
 	api := newSheetApi(cfg);
 	repo := newSheetRepository(api);
-	svc := newSheetService(repo);
-	commands := newSheetCommands(log, flags, svc)
+	svc := newSheetService(repo, log);
+	commands := newSheetCommand(log, flags, svc)
 
-	return &sheetModule{
+	return &SheetModule{
 		commands: commands,
 	}
 }
 
-func (s *sheetModule) Commands() *sheetCommands {
+func (s *SheetModule) Commands() *sheetCommand {
 	return s.commands;
 }
