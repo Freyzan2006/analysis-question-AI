@@ -27,5 +27,11 @@ func (s *sheetService) getQuestions() ([]entity.QuestionWithRow, error) {
 }
 
 func (s *sheetService) updateQuestions(questions []entity.QuestionWithRow) error {
-	return s.repo.UpdateQuestionBlock(questions)
+
+	for _, q := range questions {
+		s.log.Info("Обновлен вопрос в листе ", q.SheetName, " Блок с строкой ", q.StartRow, " - ", q.StartRow+3)
+		s.repo.UpdateQuestionBlock(q.SheetName, q.StartRow, q.QuestionTable)
+	}
+
+	return nil
 }

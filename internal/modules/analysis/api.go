@@ -40,7 +40,7 @@ func newAnalysisApi(log *core.Logger, apiKey string, model string, promptTemplat
 }
 
 
-func (a *analysisApi) analyzeQuestionsApi(q entity.QuestionTable) (*entity.QuestionTable, bool, error) {
+func (a *analysisApi) analyzeQuestionsApi(q entity.QuestionWithRow) (*entity.QuestionWithRow, bool, error) {
     ctx := context.Background()
 
 
@@ -65,7 +65,7 @@ func (a *analysisApi) analyzeQuestionsApi(q entity.QuestionTable) (*entity.Quest
     }
 
     // Парсим JSON
-    var updated entity.QuestionTable
+    var updated entity.QuestionWithRow
     if err := json.Unmarshal([]byte(clean), &updated); err != nil {
         return nil, false, fmt.Errorf("ошибка парсинга JSON от Gemini: %w\nraw response: %s", err, raw)
     }
@@ -74,6 +74,14 @@ func (a *analysisApi) analyzeQuestionsApi(q entity.QuestionTable) (*entity.Quest
     // 🔹 если Gemini не вернул categories — берём старые
     if len(updated.Categories) == 0 {
         updated.Categories = q.Categories
+    }
+
+    if len(updated.SheetName) == 0 {
+        updated.SheetName = q.SheetName
+    }
+
+    if updated.StartRow == 0 {
+        updated.StartRow = q.StartRow
     }
 
     return &updated, true, nil

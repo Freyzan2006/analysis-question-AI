@@ -14,7 +14,7 @@ type CheckingCorrectingQuestionApplication struct {
 	appLog          	*core.Logger
 }
 
-func NewCheckingCorrectingQuestionApplication(log *core.Logger) *CheckingCorrectingQuestionApplication {
+func NewCheckingCorrectingQuestionApplication() *CheckingCorrectingQuestionApplication {
 	flags := cli.NewFlags()
 	finalFlags := flags.GetFlags() 
 
@@ -29,6 +29,8 @@ func NewCheckingCorrectingQuestionApplication(log *core.Logger) *CheckingCorrect
 		Limit:              finalFlags.GoogleDocsLimit,
 		Sheets:             finalFlags.GoogleDocsSheets,
 	}
+
+	log := core.NewLogger(finalFlags.LogPathFile)
 
 
 	return &CheckingCorrectingQuestionApplication{

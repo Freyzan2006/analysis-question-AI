@@ -16,7 +16,7 @@ func newAnalysisRepository(api *analysisApi) *analysisRepository {
 }
 
 
-func (a *analysisRepository) analyzeQuestions(q entity.QuestionTable) (*entity.QuestionTable, bool, error) {
+func (a *analysisRepository) analyzeQuestions(q entity.QuestionWithRow) (*entity.QuestionWithRow, bool, error) {
 	analyzed, changed, err := a.api.analyzeQuestionsApi(q) 
 	if err != nil {
 		return nil, false, err

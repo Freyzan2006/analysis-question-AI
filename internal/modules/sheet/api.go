@@ -16,15 +16,15 @@ import (
 )
 
 import (
-    "analysis-question-AI/internal/modules/analysis"
-)
-
-import (
-    "analysis-question-AI/internal/model"
+    "analysis-question-AI/internal/core"
+    "analysis-question-AI/internal/entity"
 )
 
 
-type sheetApi struct {}
+
+type sheetApi struct {
+    cfg *core.Config
+}
 
 func newSheetApi(cfg *core.Config) *sheetApi {
 	return &sheetApi{
@@ -33,10 +33,10 @@ func newSheetApi(cfg *core.Config) *sheetApi {
 }
 
 
-func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
+func (s *sheetApi) getQuestions() ([]entity.QuestionWithRow, error) {
 	ctx := context.Background()
 
-    b, err := os.ReadFile(a.cfg.ServiceAccountFile)
+    b, err := os.ReadFile(s.cfg.ServiceAccountFile)
     if err != nil { return nil, fmt.Errorf("unable to read service account file: %w", err) }
 
     config, err := google.JWTConfigFromJSON(b, sheets.SpreadsheetsReadonlyScope)
@@ -45,10 +45,10 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
     srv, err := sheets.NewService(ctx, option.WithHTTPClient(config.Client(ctx)))
     if err != nil { return nil, fmt.Errorf("unable to retrieve Sheets client: %w", err) }
 
-    var out []QuestionWithRow
+    var out []entity.QuestionWithRow
     total := 0
 
-    for _, sheet := range a.cfg.Sheets {
+    for _, sheet := range s.cfg.Sheets {
         readRange := sheet
         if !strings.Contains(sheet, "!") {
             readRange = fmt.Sprintf("'%s'!A:E", sheet)
@@ -60,7 +60,7 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
             if v, _ := strconv.Atoi(m[1]); v > 0 { startRow = v }
         }
 
-        resp, err := srv.Spreadsheets.Values.Get(a.cfg.SpreadsheetID, readRange).Do()
+        resp, err := srv.Spreadsheets.Values.Get(s.cfg.SpreadsheetID, readRange).Do()
         if err != nil { return nil, fmt.Errorf("unable to retrieve data from %s: %w", sheet, err) }
         if len(resp.Values) == 0 { continue }
 
@@ -74,14 +74,14 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
             categories = append(categories, fmt.Sprintf("%v", rows[0][4]))
         }
 
-        opts := make([]analysis.AnswerOption, 0, 4)
+        opts := make([]entity.AnswerOption, 0, 4)
         for _, r := range rows {
             if len(r) < 2 { continue }
             option := fmt.Sprintf("%v", r[1])
             isCorrect := len(r) > 2 && strings.EqualFold(fmt.Sprintf("%v", r[2]), "TRUE")
             expl := ""
             if len(r) > 3 { expl = fmt.Sprintf("%v", r[3]) }
-            opts = append(opts, analysis.AnswerOption{ Text: option, IsCorrect: isCorrect, Explanation: expl })
+            opts = append(opts, entity.AnswerOption{ Text: option, IsCorrect: isCorrect, Explanation: expl })
         }
 
         // если правильный вариант не в первой строке — вопрос берём из его строки
@@ -92,8 +92,8 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
             }
         }
 
-        q := QuestionWithRow{
-            QuestionTable: analysis.QuestionTable{
+        q := entity.QuestionWithRow{
+            QuestionTable: entity.QuestionTable{
                 Question:   question,
                 Options:    opts,
                 Categories: categories,
@@ -104,7 +104,7 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
 
         out = append(out, q)
         total++
-        if a.cfg.Limit > 0 && total >= a.cfg.Limit { break }
+        if s.cfg.Limit > 0 && total >= s.cfg.Limit { break }
     }
 
     return out, nil
@@ -139,10 +139,10 @@ func (a *analysisApi) getQuestions() ([]QuestionWithRow, error) {
 // }
 
 
-func (a *analysisApi) updateRange(a1 string, values [][]interface{}) error {
+func (s *sheetApi) updateRange(a1 string, values [][]interface{}) error {
     ctx := context.Background()
 
-    b, err := os.ReadFile(a.cfg.ServiceAccountFile)
+    b, err := os.ReadFile(s.cfg.ServiceAccountFile)
     if err != nil { return fmt.Errorf("unable to read service account file: %w", err) }
 
     config, err := google.JWTConfigFromJSON(b, sheets.SpreadsheetsScope)
@@ -152,7 +152,7 @@ func (a *analysisApi) updateRange(a1 string, values [][]interface{}) error {
     if err != nil { return fmt.Errorf("unable to retrieve Sheets client: %w", err) }
 
     _, err = srv.Spreadsheets.Values.Update(
-        a.cfg.SpreadsheetID,
+        s.cfg.SpreadsheetID,
         a1,
         &sheets.ValueRange{ Values: values },
     ).

@@ -17,12 +17,12 @@ func newAnalysisService(repo *analysisRepository, log *core.Logger) *analysisSer
 	}
 }
 
-func (a *analysisService) findWrongQuestions(questions []entity.QuestionWithRow) ([]entity.QuestionTable, error) {
+func (a *analysisService) findWrongQuestions(questions []entity.QuestionWithRow) ([]entity.QuestionWithRow, error) {
 
-	var results []entity.QuestionTable
+	var results []entity.QuestionWithRow
 
 	for _, q := range questions {
-        analyzed, changed, err := a.repo.analyzeQuestions(q.QuestionTable)
+        analyzed, changed, err := a.repo.analyzeQuestions(q)
         if err != nil { return nil, err }
 
         if changed {

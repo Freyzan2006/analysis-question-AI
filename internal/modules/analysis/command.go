@@ -22,7 +22,7 @@ func newAnalysisCommand(svc *analysisService, log *core.Logger, flags *cli.Flags
 	}
 }
 
-func (a *analysisCommand) AnalyzeQuestions(questions []entity.QuestionWithRow) []entity.QuestionTable {
+func (a *analysisCommand) AnalyzeQuestions(questions []entity.QuestionWithRow) []entity.QuestionWithRow {
 
 	analyzedQuestions, err := a.svc.findWrongQuestions(questions)
 	if err != nil {

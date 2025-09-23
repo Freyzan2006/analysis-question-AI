@@ -59,5 +59,5 @@ func (s *sheetRepository) UpdateQuestionBlock(sheet string, startRow int, qt ent
     }
 
     a1 := fmt.Sprintf("'%s'!A%d:E%d", sheet, startRow, startRow+3)
-    return s.api.UpdateRange(a1, values)
+    return s.api.updateRange(a1, values)
 }
