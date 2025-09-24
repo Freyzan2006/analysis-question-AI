@@ -28,14 +28,16 @@ func NewCheckingCorrectingQuestionApplication() *CheckingCorrectingQuestionAppli
 		PromptsPath:        finalFlags.GooglePromptsPath,
 		Limit:              finalFlags.GoogleDocsLimit,
 		Sheets:             finalFlags.GoogleDocsSheets,
+		LogPathFile:        finalFlags.LogPathFile,
+		ApiGeminiKey:       env.Get("API_GEMINI_KEY"),
 	}
 
 	log := core.NewLogger(finalFlags.LogPathFile)
 
 
 	return &CheckingCorrectingQuestionApplication{
-		analysisModule: analysis.NewAnalysisModule(log, finalFlags, env, cfg),
-		sheetModule:    sheet.NewSheetModule(log, finalFlags, cfg),
+		analysisModule: analysis.NewAnalysisModule(log, cfg),
+		sheetModule:    sheet.NewSheetModule(log, cfg),
 
 		appLog:         log,
 	}
@@ -54,7 +56,7 @@ func (c *CheckingCorrectingQuestionApplication) Run() {
 	correctedAnswers := analysisCmd.AnalyzeQuestions(allQuestion);
 	
 
-	c.appLog.Info("Correct questions")
+	c.appLog.Info("Save... corrected questions to sheet")
 	sheetCmd.SaveQuestions(correctedAnswers);
 
 }

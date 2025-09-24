@@ -1,7 +1,6 @@
 package analysis
 
 import (
-	"analysis-question-AI/internal/api/cli"
 	"analysis-question-AI/internal/core"
 	"analysis-question-AI/internal/entity"
 )
@@ -9,16 +8,15 @@ import (
 type analysisCommand struct {
 	svc 	*analysisService
 	log 	*core.Logger
-	flags 	*cli.FlagsConfig
-
+	cfg 	*core.Config
 }
 
 
-func newAnalysisCommand(svc *analysisService, log *core.Logger, flags *cli.FlagsConfig) *analysisCommand {
+func newAnalysisCommand(svc *analysisService, log *core.Logger, cfg *core.Config) *analysisCommand {
 	return &analysisCommand{
 		svc: svc,
 		log: log,
-		flags: flags,	
+		cfg: cfg,	
 	}
 }
 

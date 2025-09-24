@@ -1,9 +1,10 @@
 package analysis
 
 import (
-    "strings"
-    "fmt"
-    "analysis-question-AI/internal/entity"
+	"analysis-question-AI/internal/core"
+	"analysis-question-AI/internal/entity"
+	"fmt"
+	"strings"
 )
 
 
@@ -24,4 +25,14 @@ func formatOptions(options []entity.AnswerOption) string {
             i+1, opt.Text, opt.IsCorrect, opt.Explanation)
     }
     return result
+}
+
+
+func getPromptFromFileUtil(path string) string {
+    promptTemplate, err := core.LoadPrompt(path)
+	if err != nil {
+		panic("Не смог прочитать промпт")
+	}
+
+    return promptTemplate
 }

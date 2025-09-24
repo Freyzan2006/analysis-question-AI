@@ -34,11 +34,11 @@ func (a *analysisService) findWrongQuestions(questions []entity.QuestionWithRow)
 			// a.log.Info("Обновлен вопрос в листе ", q.SheetName, " Блок с строкой ", row, " - ", row+3)
 
 			results = append(results, *analyzed)
-			a.log.Info("Не корректный вопрос в листе:", q.SheetName, " Строка: начиная", q.StartRow, "По концу", q.StartRow+3)
+			a.log.Info("Не корректный вопрос в листе: ", q.SheetName, " Строка: начиная ", q.StartRow, "По концу ", q.StartRow+3)
         } 
     }
 
-	a.log.Info("Найдено неправильных вопросов:", len(results))
+	a.log.Info("Найдено неправильных вопросов: ", len(results))
 
 	return results, nil
 }

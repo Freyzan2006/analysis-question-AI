@@ -1,21 +1,20 @@
 package sheet
 
 import (
-	"analysis-question-AI/internal/api/cli"
 	"analysis-question-AI/internal/core"
 	"analysis-question-AI/internal/entity"
 )
 
 type sheetCommand struct {
 	svc 	*sheetService
-	flags 	*cli.FlagsConfig
+	cfg 	*core.Config
 	log 	*core.Logger
 }
 
-func newSheetCommand(log *core.Logger, flags *cli.FlagsConfig, svc *sheetService) *sheetCommand {
+func newSheetCommand(log *core.Logger, cfg *core.Config, svc *sheetService) *sheetCommand {
 	return &sheetCommand{
 		svc: svc,
-		flags: flags,
+		cfg: cfg,
 		log: log,
 	}
 }

@@ -1,7 +1,6 @@
 package analysis
 
 import (
-	"analysis-question-AI/internal/api/cli"
 	"analysis-question-AI/internal/core"
 )
 
@@ -10,19 +9,16 @@ type AnalysisModule struct {
 }
 
 
-func NewAnalysisModule(log *core.Logger, flags *cli.FlagsConfig, env *core.Environment, cfg *core.Config) *AnalysisModule {
+func NewAnalysisModule(log *core.Logger, cfg *core.Config) *AnalysisModule {
 	
-	API_GEMINI_KEY := env.Get("API_GEMINI_KEY")
+	
 
-	promptTemplate, err := core.LoadPrompt(cfg.PromptsPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	promptTemplate := getPromptFromFileUtil(cfg.PromptsPath);
 
-	api := newAnalysisApi(log, API_GEMINI_KEY, "gemini-2.5-flash", promptTemplate);
+	api := newAnalysisApi(log, cfg.ApiGeminiKey, "gemini-2.5-flash", promptTemplate);
 	repo := newAnalysisRepository(api);
 	svc := newAnalysisService(repo, log);
-	command := newAnalysisCommand(svc, log, flags);
+	command := newAnalysisCommand(svc, log, cfg);
 
 	return &AnalysisModule{
 		command: command,
