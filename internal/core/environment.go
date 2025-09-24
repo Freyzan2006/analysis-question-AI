@@ -25,7 +25,7 @@ func (env *Environment) Get(key string) string {
 	var value = os.Getenv(key)
 	
 	if value == "" {
-		log.Fatal(fmt.Sprintf("Не удалось получить значение переменной окружения %s", key))
+		panic(fmt.Sprintf("Отсутствует обязательная переменная окружения: %s", key))
 	}
 	return value
 }

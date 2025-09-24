@@ -26,15 +26,8 @@ func (a *analysisService) findWrongQuestions(questions []entity.QuestionWithRow)
         if err != nil { return nil, err }
 
         if changed {
-            // row := q.StartRow 
-            // if err := a.svc.CorrectQuestions(questions); err != nil {
-            //     a.log.Printf("Ошибка обновления '%s'!A%d:E%d: %v", q.SheetName, row, row+3, err)
-            // }
-
-			// a.log.Info("Обновлен вопрос в листе ", q.SheetName, " Блок с строкой ", row, " - ", row+3)
-
 			results = append(results, *analyzed)
-			a.log.Info("Не корректный вопрос в листе: ", q.SheetName, " Строка: начиная ", q.StartRow, "По концу ", q.StartRow+3)
+			a.log.Info("Не корректный вопрос в листе: ", q.SheetName, " Строка: начиная ", q.StartRow, " По концу ", q.StartRow+3)
         } 
     }
 
